@@ -1,0 +1,33 @@
+name: Tmp
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-linux:
+    name: Build for linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Installing needed Ubuntu dependencies
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev
+          sudo apt-get install -y libasound2-dev:arm64
+          sudo apt-get install -y binutils-aarch64-linux-gnu
+          sudo apt-get install -y pkg-config-aarch64-linux-gnu
+          sudo apt-get install -y g++-aarch64-linux-gnu
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          # sudo apt-get install -y libx11-dev
+
+      - name: Install rust target
+        run: rustup target add aarch64-unknown-linux-gnu
+
+      - name: Build aarch64
+        run: PKG_CONFIG_ALLOW_CROSS=1 cargo build --release --target=aarch64-unknown-linux-gnu
